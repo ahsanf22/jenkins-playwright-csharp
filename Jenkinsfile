@@ -1,21 +1,26 @@
 pipeline {
     agent {
         docker { 
-            // We use the image we already tested successfully!
             image 'mcr.microsoft.com/playwright/dotnet:v1.41.0-jammy' 
             reuseNode true
         }
     }
     stages {
-        stage('Install Deps') {
+        stage('Build & Install') {
             steps {
+                // 1. Restore packages
                 sh 'dotnet restore'
+                
+                // 2. BUILD the project (This creates the bin/ folder!)
+                sh 'dotnet build'
+                
+                // 3. Now the script exists, so we can run it
                 sh 'pwsh bin/Debug/net8.0/playwright.ps1 install'
             }
         }
         stage('Test') {
             steps {
-                // Run tests and produce a result file for Jenkins to read
+                echo 'Running Playwright Tests...'
                 sh 'dotnet test --logger "trx;LogFileName=test_results.trx"'
             }
         }
