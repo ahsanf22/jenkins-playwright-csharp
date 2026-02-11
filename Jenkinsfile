@@ -14,7 +14,7 @@ pipeline {
                 // 2. BUILD the project (This creates the bin/ folder!)
                 sh 'dotnet build'
                 
-                // 3. Now the script exists, so we can run it
+                // 3. Now the script exists, so we can run itA
                 sh 'pwsh bin/Debug/net8.0/playwright.ps1 install'
             }
         }
@@ -34,6 +34,5 @@ pipeline {
             // This tells Jenkins to look for the TRX file we generated
             mstest testResultsFile: '**/*.trx', keepLongStdio: true
             }
-        }
     }
 }
