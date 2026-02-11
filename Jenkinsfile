@@ -8,13 +8,8 @@ pipeline {
     stages {
         stage('Build & Install') {
             steps {
-                // 1. Restore packages
                 sh 'dotnet restore'
-                
-                // 2. BUILD the project (This creates the bin/ folder!)
                 sh 'dotnet build'
-                
-                // 3. Now the script exists, so we can run itA
                 sh 'pwsh bin/Debug/net8.0/playwright.ps1 install'
             }
         }
@@ -24,15 +19,12 @@ pipeline {
                 sh 'dotnet test --logger "trx;LogFileName=test_results.trx"'
             }
         }
-        stages {
-        // ... (your existing stages) ...
-    }
+    } // <--- The "stages" block ends here.
     
-    // ADD THIS SECTION:
+    // The "post" block must be AFTER the closing bracket of "stages"
     post {
         always {
-            // This tells Jenkins to look for the TRX file we generated
             mstest testResultsFile: '**/*.trx', keepLongStdio: true
-            }
+        }
     }
 }
