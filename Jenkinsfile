@@ -24,5 +24,16 @@ pipeline {
                 sh 'dotnet test --logger "trx;LogFileName=test_results.trx"'
             }
         }
+        stages {
+        // ... (your existing stages) ...
+    }
+    
+    // ADD THIS SECTION:
+    post {
+        always {
+            // This tells Jenkins to look for the TRX file we generated
+            mstest testResultsFile: '**/*.trx', keepLongStdio: true
+            }
+        }
     }
 }
