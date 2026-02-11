@@ -22,23 +22,23 @@ public class Tests : PageTest
     {
         await Page.GotoAsync("https://google.com");
         
-        // 1. Handle "Reject Cookies" if it appears
-        var rejectButton = Page.GetByRole(AriaRole.Button, new() { Name = "Rifiuta tutto" });
-        var acceptButton = Page.GetByRole(AriaRole.Button, new() { Name = "Accetta tutto" });
-        
-        if (await rejectButton.IsVisibleAsync()) {
-            await rejectButton.ClickAsync();
-        } else if (await acceptButton.IsVisibleAsync()) {
-            await acceptButton.ClickAsync();
-        }
+        // 1. Handle "Reject Cookies" (Italian version)
+        // We wait a bit to see if the popup appears
+        try {
+            var rejectButton = Page.GetByRole(AriaRole.Button, new() { Name = "Rifiuta tutto" });
+            if (await rejectButton.IsVisibleAsync(new() { Timeout = 2000 })) {
+                await rejectButton.ClickAsync();
+            }
+        } catch { /* Ignore if no popup appears */ }
 
-        // 2. Type "Jenkins"
+        // 2. Type "Jenkins" and search
         await Page.GetByRole(AriaRole.Combobox, new() { Name = "Cerca" }).FillAsync("Jenkins");
-        
-        // 3. Press Enter
         await Page.Keyboard.PressAsync("Enter");
 
-        // 4. Check results
-        await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Jenkins" }).First).ToBeVisibleAsync();
+        // 3. ROBUST ASSERTION: Look for any Heading (h3) that contains the word "Jenkins"
+        // This works even if the title is "Jenkins: The leading automation server"
+        var firstResult = Page.Locator("h3").Filter(new() { HasText = "Jenkins" }).First;
+        
+        await Expect(firstResult).ToBeVisibleAsync();
     }
 }
